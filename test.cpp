@@ -42,6 +42,9 @@ char* computeMD5(const char* filename ){
 
 int main() {
 
+  string fn = "dummyfile";
+  processRemodelFile(fn);
+
   string filename = "ReMakeFile";
   cout << "reading files from " << filename << endl;
   vector<string> files = *getFiles(filename);
