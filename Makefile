@@ -6,4 +6,4 @@ DEPS = fileParsing.h
 test1: test.cpp fileParsing.cpp
 	g++  -o test1 test.cpp fileParsing.cpp $(CFLAGS)
 clean:
-	rm test
+	rm test1

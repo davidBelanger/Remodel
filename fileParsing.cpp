@@ -20,14 +20,19 @@ vector<compileInstruction> processRemodelFile(string filename){
   string content;
   
   boost::regex re1("ello");
-  
-  while(file >> content) {
-    
+
+  boost::regex re2("(\\S*) <- (.+):\\s*\"(.*)\"");
+
+  boost::regex re3( "(\\S*)\\s+:\\s+(\\S*)");
+
+  while(getline(file,content)) {
     boost::match_results<std::string::const_iterator> results;
     
-    if(boost::regex_search(content, results, re1)){
-      cout << "got " << results[0] << endl;
-      //      list->push_back(results[1]);
+    if(boost::regex_search(content, results, re2)){
+      string target = results[1];
+      string dependencies = results[2]; //todo: further split this into a list
+      string command = results[3];
+      printf("got target %s and dependencies %s and command %s\n",target.c_str(),dependencies.c_str(),command.c_str());
     }
   }
     
