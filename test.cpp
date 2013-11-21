@@ -3,9 +3,10 @@
 #include <string>
 #include <vector>
 #include <openssl/md5.h>
+#include <boost/regex.hpp>
+#include "fileParsing.h"
 
 using namespace std;
-
 
 vector<string>* getFiles(string filename){
   ifstream file(filename.c_str());
@@ -42,7 +43,7 @@ char* computeMD5(const char* filename ){
 int main() {
 
   string filename = "ReMakeFile";
-  
+  cout << "reading files from " << filename << endl;
   vector<string> files = *getFiles(filename);
     
   vector<string>::const_iterator cii;
