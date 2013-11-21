@@ -1,1 +1,2 @@
-g++ ./test.cpp -o test.o   -lssl
+test: test.cpp
+	g++ ./test.cpp -o test  -lssl
