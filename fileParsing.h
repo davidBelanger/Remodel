@@ -1,10 +1,10 @@
 #include <string>
 #include <vector>
 using namespace std;
-struct compileInstruction{
+struct CompilationDependency{
   string filename;
   vector<string> dependencies;
   string compilationCommand;
 };
 
-std::vector<compileInstruction> processRemodelFile(std::string filename);
+std::vector<CompilationDependency> processRemodelFile(std::string filename);
