@@ -69,16 +69,6 @@ void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
       string command = results[3];
       vector<string> targets =  parseCommaDeliminatedString(results[1]);
       vector<string> dependencies =  parseCommaDeliminatedString(results[2]);
-      for(int i = 0; i < targets.size(); i++){
-	CompilationDependency dep;
-	dep.filename = targets[i];
-	//	cout << "dependencies = ";
-	//printVector(dependencies);
-	//cout << endl;
-	dep.dependencies = dependencies;
-	dep.compilationCommand = command;
-	v.push_back(dep);
-      }
       
       for(int i = 0; i < targets.size(); i++){
 	DependencyNode* dn;
