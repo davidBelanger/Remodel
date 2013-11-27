@@ -45,35 +45,26 @@ char* computeMD5(const char* filename ){
     
 }
 
-void loadMD5Values(string filename, map<string,string> md5values){
+void loadMD5Values(string filename, map<string,string>& md5values){
   ifstream file(filename.c_str());
   string content;
   boost::regex getProductionRegex("(.*) <- (.+):\\s*\"(.*)\"");
   while(getline(file,content)) {
     std::vector<std::string> words;
     boost::split(words, content, boost::is_space());
-    cout << "got " << words[0] << " " << words[1] << endl; 
+    md5values[words[0]] = words[1];
   }
   file.close();
 }
 
 bool mapContains(map<string,string> m, string key){
    map<string,string>::iterator iter = m.find(key);
-   return ( iter != m.end() );
+   bool returnval = ( iter != m.end() );    
+   return returnval;
 }
 
-int main() {
-
-  string fn = "dummyfile";
-  processRemodelFile(fn);
-
-  string filename = "ReMakeFile";
-  cout << "reading files from " << filename << endl;
-  vector<string> files = *getFiles(filename);
-    
-  vector<string>::const_iterator cii;
-
-
+void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
+    vector<string>::const_iterator cii;
   //check if the md5 values are stored on disk already. if not, you assume that everything needs to be built from scratch
   string md5file = "./remodel/.md5-map";
   ifstream md5fileStream(md5file.c_str());
@@ -84,6 +75,7 @@ int main() {
   if(md5fileExists){
     loadMD5Values(md5file,md5values);
   }
+
 
   //now loop over the files that we care about and check whether they are up-to-date or not
   ofstream md5fileNew;
@@ -97,18 +89,43 @@ int main() {
       const char* file = (*cii).c_str();
       const char*  md5 = computeMD5(file);
       string currentMd5s(md5);
-      string prevMd5s = md5values[fn];
 
 
       bool is_up_to_date = false;           
       if(mapContains(md5values,fn)){
+	string prevMd5s = md5values[fn];
 	is_up_to_date = (currentMd5s == prevMd5s);
       }
+      FileStatus[*cii] =  is_up_to_date;
+       
+     if(!is_up_to_date){
+	cout << file << " changed" << endl;
+      }else{
+	cout << file << " unchanged" << endl;
+	}
 
       md5fileNew << *cii << " " <<  currentMd5s <<endl;
     }
-  system((char*) sprintf("cp %s %s",temp_md5file.c_str(),md5file.c_str())); 
+  char cmd[512];
+  sprintf(cmd,"cp %s %s",temp_md5file.c_str(),md5file.c_str()); 
+  system(cmd); 
   md5fileNew.close();
+  return;
+}
+
+int main() {
+
+  string fn = "dummyfile";
+  processRemodelFile(fn);
+
+  string filename = "ReMakeFile";
+  cout << "reading files from " << filename << endl;
+  vector<string> files = *getFiles(filename);
+    
+
+  map<string,bool> FileStatus;
+  getFileStatuses(files,FileStatus);
+ 
 
   //Now build everything
   //////////////////////
