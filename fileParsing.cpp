@@ -9,13 +9,6 @@
 using namespace boost;
 using namespace std;
 
-
-//keep a hashmap from strings to dependency tree nodes
-//each dependency node has:
-//1) a string for the system call to build it
-//2) pointers to other dependency nodes
-//3) when you instantiate something, call getorelseupdate on the hashmap
-
 struct DependencyNode{
   string target;
   string compile_cmd;
@@ -24,12 +17,12 @@ struct DependencyNode{
 
 typedef map<string,DependencyNode*>  StringToDepNodeMap;
 
-void getOrElseUpdate(StringToDepNodeMap dnmap,string key, DependencyNode*  out ){
+void getOrElseUpdate(StringToDepNodeMap dnmap,string key, DependencyNode*&  out ){
   map<string,DependencyNode*>::iterator iter = dnmap.find(key);
   if(iter != dnmap.end()){
     out = iter->second;
   }else{
-    DependencyNode* newNode = (DependencyNode*) malloc(sizeof(DependencyNode));
+    DependencyNode* newNode = new DependencyNode;
     newNode->target = key;
     out = newNode;
     dnmap[key] = newNode;
@@ -60,7 +53,6 @@ void printVector(vector<string> v){
 }
 vector<CompilationDependency> processRemodelFile(string filename){
   vector<CompilationDependency> v;
-  
   ifstream file(filename.c_str());
   string content;
   
@@ -83,11 +75,9 @@ vector<CompilationDependency> processRemodelFile(string filename){
       v.push_back(dep);
       
     }else if(boost::regex_search(content, results, getProductionRegex)){
-      //      printf("match is %s ---- %s ---- %s\n",results[1].c_str(),results[2].c_str(),results[3].c_str());
       string command = results[3];
       vector<string> targets =  parseCommaDeliminatedString(results[1]);
       vector<string> dependencies =  parseCommaDeliminatedString(results[2]);
-      printf("here");
       for(int i = 0; i < targets.size(); i++){
 	CompilationDependency dep;
 	dep.filename = targets[i];
@@ -99,12 +89,10 @@ vector<CompilationDependency> processRemodelFile(string filename){
 	v.push_back(dep);
       }
       
-      printf("printing one");
       for(int i = 0; i < targets.size(); i++){
 	DependencyNode* dn;
 	string target = targets[i];
 	getOrElseUpdate(dnMap,target,dn);
-	printf("got dn");
 	dn -> compile_cmd = command;
 	for(int j = 0; j < dependencies.size(); j++){
 	  DependencyNode* dep;
@@ -117,7 +105,6 @@ vector<CompilationDependency> processRemodelFile(string filename){
 
   }
 
-  printf("about to print dependencies\n");
   map<string,DependencyNode*>::iterator iter;
   for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
     DependencyNode dn = *(iter->second);
