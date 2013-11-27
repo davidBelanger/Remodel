@@ -1,9 +1,9 @@
 CC=g++
-CFLAGS=-lssl -L /usr/include/boost/ -lboost_regex
+CFLAGS=-I/opt/local/include/ -L/opt/local/lib/ -lboost_regex-mt -lssl -lcrypto
 DEPS = fileParsing.h
 
 
 test1: test.cpp fileParsing.cpp
-	g++  -o test1 test.cpp fileParsing.cpp $(CFLAGS)
+	g++  -g -o test1 test.cpp fileParsing.cpp $(CFLAGS)
 clean:
 	rm test1
