@@ -4,6 +4,11 @@
 #include <vector>
 #include <openssl/md5.h>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/config.hpp> 
+#include "boost/algorithm/string/erase.hpp"
+#include "boost/algorithm/string/classification.hpp"
+
 #include "fileParsing.h"
 
 using namespace std;
@@ -40,6 +45,18 @@ char* computeMD5(const char* filename ){
     
 }
 
+void loadMD5Values(string filename, map<string,string> md5values){
+  ifstream file(filename.c_str());
+  string content;
+  boost::regex getProductionRegex("(.*) <- (.+):\\s*\"(.*)\"");
+  while(getline(file,content)) {
+    std::vector<std::string> words;
+    boost::split(words, content, boost::is_space());
+    cout << "got " << words[0] << " " << words[1] << endl; 
+  }
+}
+
+
 int main() {
 
   string fn = "dummyfile";
@@ -50,15 +67,52 @@ int main() {
   vector<string> files = *getFiles(filename);
     
   vector<string>::const_iterator cii;
+
+
+  //check if the md5 values are stored on disk already. if not, you assume that everything needs to be built from scratch
+  string md5file = "./remodel/.md5-map";
+  ifstream md5fileStream(md5file.c_str());
+  bool md5fileExists = md5fileStream;
+  
+  map<string,string> md5values;
+  
+  if(md5fileExists){
+    loadMD5Values(md5file,md5values)
+  }
+
+  //now loop over the files that we care about and check whether they are up-to-date or not
+  ofstream md5fileNew;
+  string temp_md5file = "./remodel/.md5-map.tmp";
+  md5file.open ( temp_md5file);
+  
   for(cii=files.begin(); cii!=files.end(); cii++)
     {
+      string fn = *cii;
+      
       const char* file = (*cii).c_str();
       const char*  md5 = computeMD5(file);
-      string md5s(md5);
-      cout << *cii << " " <<md5s <<endl;
-    }
+      string currentMd5s(md5);
+      string prevMd5s = md5values[fn];
 
+
+      bool is_up_to_date = false;           
+      if(mapContains(md5values,fn)){
+	is_up_to_date = (currentMd5s == prevMd5s)
+      }
+
+      md5file << *cii << " " <<  currentMd5s <<endl;
+    }
+  system(sprintf("cp %s %s",temp_md5file.c_str(),md5file.c_str()) 
+
+
+  //Now build everything
+  //////////////////////
+ 
 
   return 0;
 }
 
+bool mapContains(map<string,string> m, string key){
+   map<string,string>::iterator iter = m.find(key);
+   return ( iter != m.end() )
+}
