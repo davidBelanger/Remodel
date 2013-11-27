@@ -42,6 +42,7 @@ void printVector(vector<string> v){
     printf("%s ",v[i].c_str());
   }
 }
+
 void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
   ifstream file(filename.c_str());
   string content;

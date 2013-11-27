@@ -24,10 +24,16 @@ vector<string>* getFiles(string filename){
   return list;
 }
 
+vector<string> getKeys(StringToDepNodeMap dnMap){
+  vector<string> tr;
+  StringToDepNodeMap::iterator iter;
+  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
+    tr.push_back(iter-> first);
+  }
+  return tr;
+}
 
-
-
-//todo: write a recursive method for building things when their parents are builts
+//todo: write a recursive method for building things when their parents are built
 
 int main() {
 
@@ -35,17 +41,23 @@ int main() {
   string fn = "dummyfile";
   StringToDepNodeMap dnMap;
   processRemodelFile(fn, dnMap);
+  vector<string> files = getKeys(dnMap);
 
   //  printDependencies(dnMap); //use this for debugging
   
   //todo: change this to get the filenames from what it got from the makefile
-  string filename = "ReMakeFile";
+  /*  
+string filename = "ReMakeFile";
   cout << "reading files from " << filename << endl;
   vector<string> files = *getFiles(filename);
-    
+  */
 
   map<string,bool> FileStatus;
   getFileStatuses(files,FileStatus);
+  map<string,bool>::iterator iter;
+  for(iter = FileStatus.begin(); iter != FileStatus.end(); iter++){
+    printf("file %s has status %d\n",iter -> first.c_str() ,  (char) (iter -> second));
+  }
   
 
   return 0;
