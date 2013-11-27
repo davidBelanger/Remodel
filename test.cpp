@@ -54,8 +54,13 @@ void loadMD5Values(string filename, map<string,string> md5values){
     boost::split(words, content, boost::is_space());
     cout << "got " << words[0] << " " << words[1] << endl; 
   }
+  file.close();
 }
 
+bool mapContains(map<string,string> m, string key){
+   map<string,string>::iterator iter = m.find(key);
+   return ( iter != m.end() );
+}
 
 int main() {
 
@@ -77,13 +82,13 @@ int main() {
   map<string,string> md5values;
   
   if(md5fileExists){
-    loadMD5Values(md5file,md5values)
+    loadMD5Values(md5file,md5values);
   }
 
   //now loop over the files that we care about and check whether they are up-to-date or not
   ofstream md5fileNew;
   string temp_md5file = "./remodel/.md5-map.tmp";
-  md5file.open ( temp_md5file);
+  md5fileNew.open ( temp_md5file.c_str());
   
   for(cii=files.begin(); cii!=files.end(); cii++)
     {
@@ -97,13 +102,13 @@ int main() {
 
       bool is_up_to_date = false;           
       if(mapContains(md5values,fn)){
-	is_up_to_date = (currentMd5s == prevMd5s)
+	is_up_to_date = (currentMd5s == prevMd5s);
       }
 
-      md5file << *cii << " " <<  currentMd5s <<endl;
+      md5fileNew << *cii << " " <<  currentMd5s <<endl;
     }
-  system(sprintf("cp %s %s",temp_md5file.c_str(),md5file.c_str()) 
-
+  system((char*) sprintf("cp %s %s",temp_md5file.c_str(),md5file.c_str())); 
+  md5fileNew.close();
 
   //Now build everything
   //////////////////////
@@ -112,7 +117,4 @@ int main() {
   return 0;
 }
 
-bool mapContains(map<string,string> m, string key){
-   map<string,string>::iterator iter = m.find(key);
-   return ( iter != m.end() )
-}
+
