@@ -14,3 +14,4 @@ typedef map<string,DependencyNode*>  StringToDepNodeMap;
 void processRemodelFile(std::string filename, StringToDepNodeMap& m);
 
 
+void printDependencies(StringToDepNodeMap dnMap);

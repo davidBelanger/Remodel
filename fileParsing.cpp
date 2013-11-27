@@ -84,6 +84,26 @@ void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
 }
 
 
+void printDependencies(StringToDepNodeMap dnMap){
+   map<string,DependencyNode*>::iterator iter;
+  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
+    DependencyNode dn = *(iter->second);
+    if(strcmp(iter -> first.c_str(),dn.target.c_str())){
+      printf("error\n");
+    }
+    printf("target: %s compile cmd: %s\n",dn.target.c_str(),dn.compile_cmd.c_str());
+    printf("deps:");
+    for(int j = 0; j < dn.dependencies.size(); j++){
+      printf(" %s", dn.dependencies[j]->target.c_str());
+    }
+    printf("\n\n");
+
+  }
+
+}
+
+
+
 
 
 
