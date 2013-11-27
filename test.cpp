@@ -13,52 +13,29 @@
 
 using namespace std;
 
-vector<string>* getFiles(string filename){
-  ifstream file(filename.c_str());
-  string content;
-  vector<string>* list = new vector<string>;
-  while(file >> content) {
-    list->push_back(content);
-  }
 
-  return list;
-}
 
-vector<string> getKeys(StringToDepNodeMap dnMap){
-  vector<string> tr;
-  StringToDepNodeMap::iterator iter;
-  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
-    tr.push_back(iter-> first);
-  }
-  return tr;
-}
-
-//todo: write a recursive method for building things when their parents are built
 
 int main() {
 
-  //todo: what should this return?
-  string fn = "dummyfile";
+
+  //First, parse the Remodel file 
+  string fn = "dummyfile"; //todo: have this point to a remodel file
   StringToDepNodeMap dnMap;
   processRemodelFile(fn, dnMap);
   vector<string> files = getKeys(dnMap);
 
   //  printDependencies(dnMap); //use this for debugging
-  
-  //todo: change this to get the filenames from what it got from the makefile
-  /*  
-string filename = "ReMakeFile";
-  cout << "reading files from " << filename << endl;
-  vector<string> files = *getFiles(filename);
-  */
 
+  //Then find out the status of all files in the dependencies (i.e. whether they have changed on disk). 
   map<string,bool> FileStatus;
   getFileStatuses(files,FileStatus);
-  map<string,bool>::iterator iter;
-  for(iter = FileStatus.begin(); iter != FileStatus.end(); iter++){
-    printf("file %s has status %d\n",iter -> first.c_str() ,  (char) (iter -> second));
-  }
-  
+  //map<string,bool>::iterator iter;
+  //for(iter = FileStatus.begin(); iter != FileStatus.end(); iter++){
+  //  printf("file %s has status %d\n",iter -> first.c_str() ,  (char) (iter -> second));
+  // }
+ 
+  //now, build the dependency tree from the bottom up. execute as much as you can asynchronously in parallel
 
   return 0;
 }

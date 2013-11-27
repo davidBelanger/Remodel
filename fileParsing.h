@@ -15,3 +15,6 @@ void processRemodelFile(std::string filename, StringToDepNodeMap& m);
 
 
 void printDependencies(StringToDepNodeMap dnMap);
+
+vector<string> getKeys(StringToDepNodeMap dnMap);
+

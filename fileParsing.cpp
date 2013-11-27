@@ -103,7 +103,14 @@ void printDependencies(StringToDepNodeMap dnMap){
 
 }
 
-
+vector<string> getKeys(StringToDepNodeMap dnMap){
+  vector<string> tr;
+  StringToDepNodeMap::iterator iter;
+  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
+    tr.push_back(iter-> first);
+  }
+  return tr;
+}
 
 
 
