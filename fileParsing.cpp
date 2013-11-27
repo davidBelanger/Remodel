@@ -1,21 +1,13 @@
+#include "fileParsing.h"
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "fileParsing.h"
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
 
 
 using namespace boost;
 using namespace std;
-
-struct DependencyNode{
-  string target;
-  string compile_cmd;
-  vector<DependencyNode*> dependencies;
-};
-
-typedef map<string,DependencyNode*>  StringToDepNodeMap;
 
 void getOrElseUpdate(StringToDepNodeMap dnmap,string key, DependencyNode*&  out ){
   map<string,DependencyNode*>::iterator iter = dnmap.find(key);
@@ -51,28 +43,27 @@ void printVector(vector<string> v){
     printf("%s ",v[i].c_str());
   }
 }
-vector<CompilationDependency> processRemodelFile(string filename){
-  vector<CompilationDependency> v;
+void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
   ifstream file(filename.c_str());
   string content;
   
-
   boost::regex getProductionRegex("(.*) <- (.+):\\s*\"(.*)\"");
   boost::regex getDefaultLineRegex("DEFAULT\\s*<-\\s*(.+)");
   
-  StringToDepNodeMap dnMap;
   
   while(getline(file,content)) {
     boost::match_results<std::string::const_iterator> results;
     //todo: push a DepNode for default
     if(boost::regex_search(content, results, getDefaultLineRegex)){
-      CompilationDependency dep;
+      /*     
+ CompilationDependency dep;
       dep.filename = "DEFAULT";
       vector<string> res;
       res.push_back(results[1]);
       dep.dependencies = res;
       dep.compilationCommand = "root";
       v.push_back(dep);
+      */
       
     }else if(boost::regex_search(content, results, getProductionRegex)){
       string command = results[3];
@@ -105,34 +96,6 @@ vector<CompilationDependency> processRemodelFile(string filename){
 
   }
 
-  map<string,DependencyNode*>::iterator iter;
-  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
-    DependencyNode dn = *(iter->second);
-    if(strcmp(iter -> first.c_str(),dn.target.c_str())){
-      printf("error\n");
-    }
-    printf("%s %s\n",dn.target.c_str(),dn.compile_cmd.c_str());
-    printf("deps:");
-    for(int j = 0; j < dn.dependencies.size(); j++){
-      printf(" %s", dn.dependencies[j]->target.c_str());
-    }
-
-  }
-
-
-
-
-  /*
-  for(int i = 0; i < v.size(); i++){
-    CompilationDependency depp = v[i];
-    printf("got target %s and command %s\n",depp.filename.c_str(),depp.compilationCommand.c_str());
-    printf("with dependencies "); printVector(depp.dependencies); cout << endl;
-  }
-  */
-
-
-    
-  return v;
 }
 
 

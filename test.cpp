@@ -115,9 +115,27 @@ void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
 
 int main() {
 
+  //todo: what should this return?
   string fn = "dummyfile";
-  processRemodelFile(fn);
+  StringToDepNodeMap dnMap;
+  processRemodelFile(fn, dnMap);
+  
+  map<string,DependencyNode*>::iterator iter;
+  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
+    DependencyNode dn = *(iter->second);
+    if(strcmp(iter -> first.c_str(),dn.target.c_str())){
+      printf("error\n");
+    }
+    printf("%s %s\n",dn.target.c_str(),dn.compile_cmd.c_str());
+    printf("deps:");
+    for(int j = 0; j < dn.dependencies.size(); j++){
+      printf(" %s", dn.dependencies[j]->target.c_str());
+    }
 
+  }
+
+
+  //todo: change this to get the filenames from what it got from the makefile
   string filename = "ReMakeFile";
   cout << "reading files from " << filename << endl;
   vector<string> files = *getFiles(filename);
@@ -125,11 +143,7 @@ int main() {
 
   map<string,bool> FileStatus;
   getFileStatuses(files,FileStatus);
- 
-
-  //Now build everything
-  //////////////////////
- 
+  
 
   return 0;
 }

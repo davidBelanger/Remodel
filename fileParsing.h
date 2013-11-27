@@ -1,10 +1,15 @@
 #include <string>
 #include <vector>
 using namespace std;
-struct CompilationDependency{
-  string filename;
-  vector<string> dependencies;
-  string compilationCommand;
+
+struct DependencyNode{
+  string target;
+  string compile_cmd;
+  vector<DependencyNode*> dependencies;
 };
 
-std::vector<CompilationDependency> processRemodelFile(std::string filename);
+typedef map<string,DependencyNode*>  StringToDepNodeMap;
+
+void processRemodelFile(std::string filename, StringToDepNodeMap& m);
+
+
