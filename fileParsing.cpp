@@ -9,7 +9,7 @@
 using namespace boost;
 using namespace std;
 
-void getOrElseUpdate(StringToDepNodeMap dnmap,string key, DependencyNode*&  out ){
+void getOrElseUpdate(StringToDepNodeMap& dnmap,string key, DependencyNode*&  out ){
   map<string,DependencyNode*>::iterator iter = dnmap.find(key);
   if(iter != dnmap.end()){
     out = iter->second;
@@ -18,7 +18,6 @@ void getOrElseUpdate(StringToDepNodeMap dnmap,string key, DependencyNode*&  out 
     newNode->target = key;
     out = newNode;
     dnmap[key] = newNode;
-     
   }
 }
 
@@ -53,23 +52,19 @@ void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
   
   while(getline(file,content)) {
     boost::match_results<std::string::const_iterator> results;
-    //todo: push a DepNode for default
     if(boost::regex_search(content, results, getDefaultLineRegex)){
-      /*     
- CompilationDependency dep;
-      dep.filename = "DEFAULT";
-      vector<string> res;
-      res.push_back(results[1]);
-      dep.dependencies = res;
-      dep.compilationCommand = "root";
-      v.push_back(dep);
-      */
-      
+      DependencyNode* dep;
+      string name = results[1];
+      getOrElseUpdate(dnMap,"DEFAULT",dep);
+      DependencyNode* parent;
+      getOrElseUpdate(dnMap,name,parent);
+      dep -> dependencies.push_back(parent);
+      dep -> compile_cmd = "";
+      dep -> target = "DEFAULT";   
     }else if(boost::regex_search(content, results, getProductionRegex)){
       string command = results[3];
       vector<string> targets =  parseCommaDeliminatedString(results[1]);
       vector<string> dependencies =  parseCommaDeliminatedString(results[2]);
-      
       for(int i = 0; i < targets.size(); i++){
 	DependencyNode* dn;
 	string target = targets[i];
