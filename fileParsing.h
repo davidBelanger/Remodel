@@ -3,10 +3,17 @@
 #include <map>
 using namespace std;
 
-struct DependencyNode{
+class DependencyNode{
+ public: 
+  bool fileHasChanged;
   string target;
   string compile_cmd;
   vector<DependencyNode*> dependencies;
+  bool operator()(bool someParentHasChanged){ bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
+
+  
+  //bool build(bool  someParentHasChanged){ bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
+
 };
 
 typedef map<string,DependencyNode*>  StringToDepNodeMap;
