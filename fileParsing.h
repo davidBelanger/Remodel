@@ -3,8 +3,7 @@
 #include <map>
 using namespace std;
 
-class DependencyNode{
- public: 
+struct DependencyNode{
   bool fileHasChanged;
   string target;
   string compile_cmd;
