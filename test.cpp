@@ -2,8 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <boost/regex.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/regex.hpp>
 #include <boost/algorithm/string/config.hpp> 
 #include "boost/algorithm/string/erase.hpp"
 #include "boost/algorithm/string/classification.hpp"

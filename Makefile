@@ -1,4 +1,4 @@
-CC=clang
+CC=clang++
 CFLAGS=-std=c++11 -stdlib=libc++  -I/opt/local/include/ -L/opt/local/lib/ -lboost_regex-mt -lssl -lcrypto -ltbb -Weverything
 DEPS = fileParsing.h fileStatus.h
 
