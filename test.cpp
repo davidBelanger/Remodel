@@ -29,8 +29,8 @@ void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
     node -> fileHasChanged = !fileHasNotChangedOnDisk;
     //[&t] (bool t) node->build(t)
     DependencyNode n = *node;
-    n(true);
-    //function_node<bool,bool> f( g, unlimited, n());
+    //n(true);
+    function_node<bool,bool> f( g, unlimited, n.build());
 
   }
 

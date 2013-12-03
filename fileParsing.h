@@ -9,10 +9,10 @@ struct DependencyNode{
   string target;
   string compile_cmd;
   vector<DependencyNode*> dependencies;
-  bool operator()(bool someParentHasChanged){ bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) std::system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
+  bool operator()(bool someParentHasChanged){ printf("building %s\n",target.c_str()); bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) std::system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
 
   
-  //bool build(bool  someParentHasChanged){ bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
+  bool build(bool  someParentHasChanged){ bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
 
 };
 
