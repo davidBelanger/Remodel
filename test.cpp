@@ -2,11 +2,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/config.hpp> 
-#include "boost/algorithm/string/erase.hpp"
-#include "boost/algorithm/string/classification.hpp"
 #include "fileStatus.h"
 #include "fileParsing.h"
 #include "tbb/flow_graph.h"
@@ -34,7 +29,8 @@ void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
     node -> fileHasChanged = !fileHasNotChangedOnDisk;
     //[&t] (bool t) node->build(t)
     DependencyNode n = *node;
-    function_node<bool,bool> f( g, unlimited, n());
+    n(true);
+    //function_node<bool,bool> f( g, unlimited, n());
 
   }
 

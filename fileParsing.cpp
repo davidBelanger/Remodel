@@ -4,11 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <boost/regex.hpp>
-#include <boost/tokenizer.hpp>
+#include <regex>
 
 
-using namespace boost;
 using namespace std;
 
 void getOrElseUpdate(StringToDepNodeMap& dnmap,string key, DependencyNode*&  out ){
@@ -25,16 +23,17 @@ void getOrElseUpdate(StringToDepNodeMap& dnmap,string key, DependencyNode*&  out
 
 vector<string> parseCommaDeliminatedString(string text){
   vector<string> fields;
-  char_separator<char> sep(",");
-  tokenizer<char_separator<char> > tokens(text, sep);
-  for ( tokenizer<char_separator<char> >::iterator it = tokens.begin();
-	it != tokens.end();
-	++it)
+  const char delim = ',';
+  const char* str = text.c_str();
+    do
     {
-      string str = *it;
-      str.erase(remove(str.begin(), str.end(), ' '), str.end());
-      fields.push_back(str);
-    }
+        const char *begin = str;
+
+        while(*str != delim && *str)
+            str++;
+
+        fields.push_back(string(begin, str));
+    } while (0 != *str++);
 
   return fields;
 }
@@ -49,13 +48,18 @@ void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
   ifstream file(filename.c_str());
   string content;
   
-  boost::regex getProductionRegex("(.*) <- (.+):\\s*\"(.*)\"");
-  boost::regex getDefaultLineRegex("DEFAULT\\s*<-\\s*(.+)");
+ 
+  string r1 = "DEFAULT\\s*<-\\s*(.+)";
+  string r2 = "(.*) <- (.+):\\s*\"(.+)\"";
+  
+  regex getDefaultLineRegex(r1.c_str());
+  regex getProductionRegex(r2.c_str());
+
   
   
   while(getline(file,content)) {
-    boost::match_results<std::string::const_iterator> results;
-    if(boost::regex_search(content, results, getDefaultLineRegex)){
+    match_results<std::string::const_iterator> results;
+    if(regex_search(content, results, getDefaultLineRegex)){
       DependencyNode* dep;
       string name = results[1];
       getOrElseUpdate(dnMap,"DEFAULT",dep);
@@ -64,7 +68,7 @@ void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
       dep -> dependencies.push_back(parent);
       dep -> compile_cmd = "";
       dep -> target = "DEFAULT";   
-    }else if(boost::regex_search(content, results, getProductionRegex)){
+    }else if(regex_search(content, results, getProductionRegex)){
       string command = results[3];
       vector<string> targets =  parseCommaDeliminatedString(results[1]);
       vector<string> dependencies =  parseCommaDeliminatedString(results[2]);

@@ -25,13 +25,31 @@ char* computeMD5(const char* filename ){
     
 }
 
+vector<string> parseSpaceDeliminatedString(string text){
+  vector<string> fields;
+  const char delim = ' ';
+  const char* str = text.c_str();
+    do
+    {
+        const char *begin = str;
+
+        while(*str != delim && *str)
+            str++;
+
+        fields.push_back(string(begin, str));
+    } while (0 != *str++);
+
+  return fields;
+}
+
+
 void loadMD5Values(string filename, map<string,string>& md5values){
   ifstream file(filename.c_str());
   string content;
-  boost::regex getProductionRegex("(.*) <- (.+):\\s*\"(.*)\"");
+    regex getProductionRegex("(.*) <- (.+):\\s*\"(.*)\"", regex::extended);
+  
   while(getline(file,content)) {
-    std::vector<std::string> words;
-    boost::split(words, content, boost::is_space());
+    std::vector<std::string> words = parseSpaceDeliminatedString(content);
     md5values[words[0]] = words[1];
   }
   file.close();
@@ -45,8 +63,15 @@ bool mapContains(map<string,string> m, string key){
 
 bool fileExists(string fn){
   ifstream is(fn.c_str());
-  bool tr = is;
-  return tr;
+
+  if (is.good()) {
+        is.close();
+        return true;
+    } else {
+        is.close();
+        return false;
+    }   
+
 }
 
 void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
