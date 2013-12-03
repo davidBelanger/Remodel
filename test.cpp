@@ -29,8 +29,8 @@ void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
     node -> fileHasChanged = !fileHasNotChangedOnDisk;
     //[&t] (bool t) node->build(t)
     DependencyNode n = *node;
-    //n(true);
-    function_node<bool,bool> f( g, unlimited, n.build());
+    n(true);
+    //function_node<bool,bool> f( g, unlimited, n.build());
 
   }
 
@@ -42,7 +42,7 @@ int main() {
 
 
   //First, parse the Remodel file 
-  string fn = "dummyfile"; //todo: have this point to a remodel file
+  string fn = "RemodelFile"; //todo: have this point to a remodel file
   StringToDepNodeMap dnMap;
   processRemodelFile(fn, dnMap);
   vector<string> files = getKeys(dnMap);

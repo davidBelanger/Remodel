@@ -118,7 +118,7 @@ void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
       FileStatus[*cii] =  is_up_to_date;
     }
   char cmd[512];
-  sprintf(cmd,"cp %s %s",temp_md5file.c_str(),md5file.c_str()); 
+  sprintf(cmd,"mv %s %s",temp_md5file.c_str(),md5file.c_str()); 
   system(cmd); 
   md5fileNew.close();
   return;
