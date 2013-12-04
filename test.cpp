@@ -67,18 +67,18 @@ void buildInParallelOld(map<string,bool> fs, StringToDepNodeMap dnMap){
 */
 
 //todo: put a lock on dirtyFiles
-bool getParentStatuses( vector<DependencyNode*> dependencies,  map<string,bool> dirtyFiles ){
-  bool safe = true;
+//
+bool checkIfParentsHaveChanged( vector<DependencyNode*> dependencies,  map<string,bool> dirtyFiles ){
+  bool unchanged = true;
   for(int i = 0; i < dependencies.size(); i++){
     string parentFile = dependencies[i]->target;
-    bool parentStatus = dirtyFiles[parentFile];
-    printf("%s %d\n",parentFile.c_str(),parentStatus);
-    safe = safe && parentStatus;
+    bool parentUnChanged = !dirtyFiles[parentFile];
+    unchanged = unchanged && parentUnChanged;
   }
-  return safe;
+  return !unchanged;
 }
 
-void buildInParallel( map<string,bool> fs, StringToDepNodeMap dnMap){
+void buildInParallel( map<string,bool> dirtyFiles, StringToDepNodeMap dnMap){
   //for each node in the dependency graph, make a function node
   //todo: add logic where it only finds the relevant parts of the tree to traverse (this can just be a flat list of names)
   //todo: add logic where if everything is fresh, then you don't build at all.
@@ -86,20 +86,17 @@ void buildInParallel( map<string,bool> fs, StringToDepNodeMap dnMap){
 
   broadcast_node<continue_msg> input(g);
   map<string,continue_node<continue_msg>* > continueNodes; 
-  map<string,bool> dirtyFiles =  fs;//map<string,bool>(fs);
   for (map<string,DependencyNode*>::iterator it = dnMap.begin(); it != dnMap.end(); it++){
     string name = it -> first;
-    printf("%s file status = %d\n",name.c_str(),fs[name]);
-    printf("file status =  %s\n", fs[name] ? "true" : "false");
-    bool fileHasNotChangedOnDisk = fs[name];
     DependencyNode* node = dnMap[name];
-    node -> fileHasChanged = !fileHasNotChangedOnDisk;
+    bool fileHasChangedOnDisk = dirtyFiles[name];
     
     continue_node<continue_msg> * f = new continue_node<continue_msg>( g,  [=]( const continue_msg& ){ 
-	bool parentsChanged = getParentStatuses(node->dependencies,dirtyFiles);
-	bool needToBuild = !fileHasNotChangedOnDisk || parentsChanged;
-	printf("%d %d %d building %s with %s ",parentsChanged,!fileHasNotChangedOnDisk, needToBuild,node -> target.c_str(), node->compile_cmd.c_str());
+	bool parentsChanged = checkIfParentsHaveChanged(node->dependencies,dirtyFiles);
+	bool needToBuild = fileHasChangedOnDisk || parentsChanged;
 	if(needToBuild){
+	printf("parentChanged = %d, fileChangedOnDisk %d %d building %s with %s ",parentsChanged,fileHasChangedOnDisk, needToBuild,node -> target.c_str(), node->compile_cmd.c_str());
+
 	  node->doBuild();
 	}
 	//todo: update dirty functions (w/ a lock)
