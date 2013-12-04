@@ -18,8 +18,8 @@ using namespace std;
 //This can be trivially discovered while traversing dnMap.
 
 
-
-void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
+/*
+void buildInParallelOld(map<string,bool> fs, StringToDepNodeMap dnMap){
   //for each node in the dependency graph, make a function node
   //todo: add logic where it only finds the relevant parts of the tree to traverse (this can just be a flat list of names)
   //todo: add logic where if everything is fresh, then you don't build at all.
@@ -64,6 +64,74 @@ void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
   g.wait_for_all();
 	
 }
+*/
+
+//todo: put a lock on dirtyFiles
+bool getParentStatuses( vector<DependencyNode*> dependencies,  map<string,bool> dirtyFiles ){
+  bool safe = true;
+  for(int i = 0; i < dependencies.size(); i++){
+    string parentFile = dependencies[i]->target;
+    safe = safe && dirtyFiles[parentFile];
+  }
+  return safe;
+}
+
+void buildInParallel( map<string,bool> fs, StringToDepNodeMap dnMap){
+  //for each node in the dependency graph, make a function node
+  //todo: add logic where it only finds the relevant parts of the tree to traverse (this can just be a flat list of names)
+  //todo: add logic where if everything is fresh, then you don't build at all.
+  graph g;
+
+  broadcast_node<continue_msg> input(g);
+  map<string,continue_node<continue_msg>* > continueNodes; 
+  map<string,bool> dirtyFiles =  fs;//map<string,bool>(fs);
+  for (map<string,DependencyNode*>::iterator it = dnMap.begin(); it != dnMap.end(); it++){
+    string name = it -> first;
+    bool fileHasNotChangedOnDisk = fs[name];
+    DependencyNode* node = dnMap[name];
+    node -> fileHasChanged = !fileHasNotChangedOnDisk;
+    
+    continue_node<continue_msg> * f = new continue_node<continue_msg>( g,  [=]( const continue_msg& ){ 
+	bool parentsChanged = getParentStatuses(node->dependencies,dirtyFiles);
+	bool needToBuild = !fileHasNotChangedOnDisk || parentsChanged;
+	if(needToBuild){
+	  node->doBuild();
+	}
+	//todo: update dirty functions (w/ a lock)
+	//dirtyFiles[node->target] = needToBuild;
+
+      });
+    continueNodes[node->target]= f;
+  }
+
+  map<string,continue_node<continue_msg>* >::iterator iter;
+  for(iter = continueNodes.begin(); iter != continueNodes.end(); iter++){
+    DependencyNode* depNode = dnMap[iter->first];
+    printf("node %s has %d dependencies\n",depNode->target.c_str(),depNode->dependencies.size());
+    if(depNode->target != iter->first){
+      printf("problem\n");
+    }
+    continue_node<continue_msg>*node  = iter->second;
+    //if it is a leaf node, connect it to the input node, else connect it to its parents
+    if(depNode->dependencies.size() == 0){
+      printf("making an edge between input and %s\n",depNode->target.c_str());
+      make_edge(input,*node);
+    }
+    for(int i = 0; i < depNode->dependencies.size(); i++){
+      printf("making an edge between %s and %s\n",  depNode->dependencies[i]->target.c_str(),(*depNode).target.c_str());
+
+      continue_node<continue_msg>* parent = continueNodes[ depNode->dependencies[i]->target ];
+      make_edge(*parent,*node);
+    } 
+    
+
+  }
+  input.try_put( continue_msg() );
+
+  g.wait_for_all();
+	
+}
+
 
 int main() {
 

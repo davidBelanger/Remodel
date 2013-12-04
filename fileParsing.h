@@ -12,14 +12,16 @@ class DependencyNode{
   vector<DependencyNode*> dependencies;
   int operator()(int v) { return v*v; }
   int hello(int v) { return v*v; }
-
+  void doBuild(void){
+    std::system(compile_cmd.c_str());
+  }
   //todo: how do we declare this as non-static?
   const bool build(bool someParentHasChanged){ 
      bool dirty  =  someParentHasChanged || fileHasChanged; 
      printf("building %s\nparentStatus = %d. Dirty = %d\n",target.c_str(),someParentHasChanged,dirty); 
 
      if(dirty) 
-       std::system(compile_cmd.c_str());//todo: add some error handling
+       doBuild();//todo: add some error handling
      return dirty;
    } 
 
