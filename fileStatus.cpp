@@ -74,6 +74,9 @@ bool fileExists(string fn){
 
 }
 
+
+//This returns a map from string -> bool where FileStatus[file]  = true if file *has* changed on disk.
+
 void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
     vector<string>::const_iterator cii;
   //check if the md5 values are stored on disk already. if not, you assume that everything needs to be built from scratch
@@ -115,7 +118,7 @@ void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
 	
 	md5fileNew << *cii << " " <<  currentMd5s <<endl;
       }
-      FileStatus[*cii] =  is_up_to_date;
+      FileStatus[*cii] =  !is_up_to_date;
     }
   char cmd[512];
   sprintf(cmd,"mv %s %s",temp_md5file.c_str(),md5file.c_str()); 

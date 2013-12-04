@@ -71,7 +71,9 @@ bool getParentStatuses( vector<DependencyNode*> dependencies,  map<string,bool> 
   bool safe = true;
   for(int i = 0; i < dependencies.size(); i++){
     string parentFile = dependencies[i]->target;
-    safe = safe && dirtyFiles[parentFile];
+    bool parentStatus = dirtyFiles[parentFile];
+    printf("%s %d\n",parentFile.c_str(),parentStatus);
+    safe = safe && parentStatus;
   }
   return safe;
 }
@@ -87,6 +89,8 @@ void buildInParallel( map<string,bool> fs, StringToDepNodeMap dnMap){
   map<string,bool> dirtyFiles =  fs;//map<string,bool>(fs);
   for (map<string,DependencyNode*>::iterator it = dnMap.begin(); it != dnMap.end(); it++){
     string name = it -> first;
+    printf("%s file status = %d\n",name.c_str(),fs[name]);
+    printf("file status =  %s\n", fs[name] ? "true" : "false");
     bool fileHasNotChangedOnDisk = fs[name];
     DependencyNode* node = dnMap[name];
     node -> fileHasChanged = !fileHasNotChangedOnDisk;
@@ -94,6 +98,7 @@ void buildInParallel( map<string,bool> fs, StringToDepNodeMap dnMap){
     continue_node<continue_msg> * f = new continue_node<continue_msg>( g,  [=]( const continue_msg& ){ 
 	bool parentsChanged = getParentStatuses(node->dependencies,dirtyFiles);
 	bool needToBuild = !fileHasNotChangedOnDisk || parentsChanged;
+	printf("%d %d %d building %s with %s ",parentsChanged,!fileHasNotChangedOnDisk, needToBuild,node -> target.c_str(), node->compile_cmd.c_str());
 	if(needToBuild){
 	  node->doBuild();
 	}
@@ -107,18 +112,15 @@ void buildInParallel( map<string,bool> fs, StringToDepNodeMap dnMap){
   map<string,continue_node<continue_msg>* >::iterator iter;
   for(iter = continueNodes.begin(); iter != continueNodes.end(); iter++){
     DependencyNode* depNode = dnMap[iter->first];
-    printf("node %s has %d dependencies\n",depNode->target.c_str(),depNode->dependencies.size());
-    if(depNode->target != iter->first){
-      printf("problem\n");
-    }
+    // printf("node %s has %d dependencies\n",depNode->target.c_str(),depNode->dependencies.size());
     continue_node<continue_msg>*node  = iter->second;
     //if it is a leaf node, connect it to the input node, else connect it to its parents
     if(depNode->dependencies.size() == 0){
-      printf("making an edge between input and %s\n",depNode->target.c_str());
+      // printf("making an edge between input and %s\n",depNode->target.c_str());
       make_edge(input,*node);
     }
     for(int i = 0; i < depNode->dependencies.size(); i++){
-      printf("making an edge between %s and %s\n",  depNode->dependencies[i]->target.c_str(),(*depNode).target.c_str());
+      //printf("making an edge between %s and %s\n",  depNode->dependencies[i]->target.c_str(),(*depNode).target.c_str());
 
       continue_node<continue_msg>* parent = continueNodes[ depNode->dependencies[i]->target ];
       make_edge(*parent,*node);

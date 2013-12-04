@@ -13,6 +13,7 @@ class DependencyNode{
   int operator()(int v) { return v*v; }
   int hello(int v) { return v*v; }
   void doBuild(void){
+    printf("executing: %s\n",compile_cmd.c_str());
     std::system(compile_cmd.c_str());
   }
   //todo: how do we declare this as non-static?
