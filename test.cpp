@@ -28,7 +28,7 @@ bool checkIfParentsHaveChanged( vector<DependencyNode*> dependencies,  map<strin
   return !unchanged;
 }
 
-void buildInParallel( map<string,bool> dirtyFiles, StringToDepNodeMap dnMap){
+void buildInParallel( map<string,bool>& dirtyFiles, StringToDepNodeMap dnMap){
   //for each node in the dependency graph, make a function node
   //todo: add logic where it only finds the relevant parts of the tree to traverse (this can just be a flat list of names)
   //todo: add logic where if everything is fresh, then you don't build at all.
@@ -96,6 +96,8 @@ int main() {
   map<string,bool> FileStatus;
   getFileStatuses(files,FileStatus); 
 
+  string n = "foo.cpp";
+  FileStatus[n] = true;
   //todo: make list of things that you care about (by traversing up along dependencies).
   buildInParallel(FileStatus,dnMap);
 
