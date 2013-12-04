@@ -6,7 +6,7 @@
 #include "fileParsing.h"
 #include "tbb/flow_graph.h"
 #include <stdlib.h>
-
+#include <functional>
 using namespace tbb::flow;
 using namespace std;
 
@@ -16,10 +16,15 @@ using namespace std;
 //todo: how do you send messages to all the things to start?
 //todo: candidate solution: have one input node, set to false (i.e. nothing has changed). keep a list of all the things that are leaves (i.e. have no parents). 
 //This can be trivially discovered while traversing dnMap.
+
+
+
 void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
-  //for each node in the dependency graph, make a 
+  //for each node in the dependency graph, make a function node
+
   graph g;
   broadcast_node<bool> input(g);
+  map<string,function_node<bool,bool> > functionNodes; 
   for (map<string,DependencyNode*>::iterator it = dnMap.begin();
         it != dnMap.end();
        ++it){
@@ -27,14 +32,35 @@ void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
     bool fileHasNotChangedOnDisk = fs[name];
     DependencyNode* node = dnMap[name];
     node -> fileHasChanged = !fileHasNotChangedOnDisk;
-    //[&t] (bool t) node->build(t)
-    DependencyNode n = *node;
-    n(true);
-    //function_node<bool,bool> f( g, unlimited, n.build());
-
+    
+    function_node<bool,bool> f( g, unlimited, [=](bool a ) -> bool{ return node->build(a);});
+    map[node->target]= f;
   }
 
-  //now, loop over the nodes again and make an edge between it and its par
+  map<string,function_node<bool,bool> >::iterator iter;
+  for(iter = functionNodes.begin(); iter != functionNodes.end(); iter++){
+    function_node<bool,bool> node = iter->second;
+    vector<DependencyNode*>::
+    make_edge(parent,node)
+  }
+
+
+   
+    make_edge( input, squarer );
+  make_edge( input, cuber );
+  make_edge( squarer, get<0>( join.input_ports() ) );
+  make_edge( cuber, get<1>( join.input_ports() ) );
+  make_edge( join, summer );
+
+  for (int i = 1; i <= 10; ++i)
+    input.try_put(i);
+  g.wait_for_all();
+
+	
+  //now, loop over the nodes again and make an edge between it and its parents (dependencies)
+
+  
+  //now, run
 
 }
 

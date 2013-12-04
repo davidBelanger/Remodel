@@ -4,16 +4,27 @@
 #include <cstdlib>
 using namespace std;
 
-struct DependencyNode{
+class DependencyNode{
+ public:
   bool fileHasChanged;
   string target;
   string compile_cmd;
   vector<DependencyNode*> dependencies;
-  bool operator()(bool someParentHasChanged){ printf("building %s\n",target.c_str()); bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) std::system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
+  int operator()(int v) { return v*v; }
+  int hello(int v) { return v*v; }
+
+  //todo: how do we declare this as non-static?
+  const bool build(bool someParentHasChanged){ 
+     printf("building %s\n",target.c_str()); 
+     bool dirty  =  someParentHasChanged || fileHasChanged; 
+     if(dirty) 
+       std::system(compile_cmd.c_str());//todo: add some error handling
+     return dirty;
+   } 
+
+
 
   
-  bool build(bool  someParentHasChanged){ bool dirty  = someParentHasChanged || fileHasChanged; if(dirty) system(compile_cmd.c_str())   ;return dirty;}; //todo: add some error handling
-
 };
 
 typedef map<string,DependencyNode*>  StringToDepNodeMap;
