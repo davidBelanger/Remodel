@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include <boost/algorithm/string.hpp>
+using namespace boost::algorithm;
 
 
 using namespace std;
@@ -21,6 +23,8 @@ void getOrElseUpdate(StringToDepNodeMap& dnmap,string key, DependencyNode*&  out
   }
 }
 
+
+
 vector<string> parseCommaDeliminatedString(string text){
   vector<string> fields;
   const char delim = ',';
@@ -31,12 +35,14 @@ vector<string> parseCommaDeliminatedString(string text){
 
         while(*str != delim && *str)
             str++;
-
-        fields.push_back(string(begin, str));
+	string st = string(begin, str);
+	trim(st);
+        fields.push_back(st);
     } while (0 != *str++);
 
   return fields;
 }
+
 
 void printVector(vector<string> v){
   for(int i = 0; i < v.size(); i++){
@@ -94,6 +100,7 @@ void processRemodelFile(string filename, StringToDepNodeMap& dnMap){
 void printDependencies(StringToDepNodeMap dnMap){
    map<string,DependencyNode*>::iterator iter;
   for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
+    printf("key = --%s--\n",iter->first.c_str());
     DependencyNode dn = *(iter->second);
     if(strcmp(iter -> first.c_str(),dn.target.c_str())){
       printf("error\n");

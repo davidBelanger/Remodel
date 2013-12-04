@@ -39,17 +39,20 @@ void buildInParallel(map<string,bool> fs, StringToDepNodeMap dnMap){
   map<string,function_node<bool,bool>* >::iterator iter;
   for(iter = functionNodes.begin(); iter != functionNodes.end(); iter++){
     DependencyNode* depNode = dnMap[iter->first];
+    printf("node %s has %d dependencies\n",depNode->target.c_str(),depNode->dependencies.size());
     if(depNode->target != iter->first){
       printf("problem\n");
     }
     function_node<bool,bool>*node  = iter->second;
     //if it is a leaf node, connect it to the input node, else connect it to its parents
-    printf("making an edge between input and %s @ %p and %p\n",(*depNode).target.c_str(), &input, node);
-    // make_edge(input,*node);
-    if(depNode->dependencies.size() == 0)
+    if(depNode->dependencies.size() == 0){
+      printf("making an edge between input and %s\n",depNode->target.c_str());
       make_edge(input,*node);
+    }
     for(int i = 0; i < depNode->dependencies.size(); i++){
-      function_node<bool,bool>* parent = functionNodes[ depNode->dependencies[i]->target];
+      printf("making an edge between %s and %s\n",  depNode->dependencies[i]->target.c_str(),(*depNode).target.c_str());
+
+      function_node<bool,bool>* parent = functionNodes[ depNode->dependencies[i]->target ];
       make_edge(*parent,*node);
     } 
     
@@ -71,7 +74,7 @@ int main() {
   processRemodelFile(fn, dnMap);
   vector<string> files = getKeys(dnMap);
 
-  //  printDependencies(dnMap); //use this for debugging
+    printDependencies(dnMap); //use this for debugging
 
   //Then find out the status of all files in the dependencies (i.e. whether they have changed on disk). 
   //here, the value of the map is true if the file *has not* changed on disk
