@@ -109,12 +109,13 @@ void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
 	  string prevMd5s = md5values[fn];
 	  is_up_to_date = (currentMd5s == prevMd5s);
 	}
-	
+	/*
 	if(!is_up_to_date){
 	  cout << file << " changed" << endl;
 	}else{
 	  cout << file << " unchanged" << endl;
 	}
+	*/
 	
 	md5fileNew << *cii << " " <<  currentMd5s <<endl;
       }

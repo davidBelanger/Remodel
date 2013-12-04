@@ -13,21 +13,12 @@ class DependencyNode{
   int operator()(int v) { return v*v; }
   int hello(int v) { return v*v; }
   void doBuild(void){
-    printf("executing: %s\n",compile_cmd.c_str());
-    std::system(compile_cmd.c_str());
+    bool nonTrivialBuildCommand = compile_cmd != "";
+    if(nonTrivialBuildCommand){
+      printf("executing: %s\n",compile_cmd.c_str());
+      std::system(compile_cmd.c_str());
+    }
   }
-  //todo: how do we declare this as non-static?
-  const bool build(bool someParentHasChanged){ 
-     bool dirty  =  someParentHasChanged || fileHasChanged; 
-     printf("building %s\nparentStatus = %d. Dirty = %d\n",target.c_str(),someParentHasChanged,dirty); 
-
-     if(dirty) 
-       doBuild();//todo: add some error handling
-     return dirty;
-   } 
-
-
-
   
 };
 

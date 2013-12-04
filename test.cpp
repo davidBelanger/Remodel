@@ -7,74 +7,24 @@
 #include "tbb/flow_graph.h"
 #include <stdlib.h>
 #include <functional>
+#include "tbb/mutex.h"
+#include "tbb/tbb_thread.h"
 using namespace tbb::flow;
 using namespace std;
-
-
-//todo: have DependencyNode have all the functionality of a TBBDepNode.
-//todo: test this first on something simple
-//todo: how do you send messages to all the things to start?
-//todo: candidate solution: have one input node, set to false (i.e. nothing has changed). keep a list of all the things that are leaves (i.e. have no parents). 
-//This can be trivially discovered while traversing dnMap.
-
-
-/*
-void buildInParallelOld(map<string,bool> fs, StringToDepNodeMap dnMap){
-  //for each node in the dependency graph, make a function node
-  //todo: add logic where it only finds the relevant parts of the tree to traverse (this can just be a flat list of names)
-  //todo: add logic where if everything is fresh, then you don't build at all.
-  graph g;
-  broadcast_node<bool> input(g);
-  map<string,function_node<bool,bool>* > functionNodes; 
-  for (map<string,DependencyNode*>::iterator it = dnMap.begin(); it != dnMap.end(); it++){
-    string name = it -> first;
-    bool fileHasNotChangedOnDisk = fs[name];
-    DependencyNode* node = dnMap[name];
-    node -> fileHasChanged = !fileHasNotChangedOnDisk;
-    
-    function_node<bool,bool> * f = new function_node<bool,bool>( g, unlimited, [=](bool a ) -> bool{ return node->build(a);});
-    functionNodes[node->target]= f;
-  }
-
-  map<string,function_node<bool,bool>* >::iterator iter;
-  for(iter = functionNodes.begin(); iter != functionNodes.end(); iter++){
-    DependencyNode* depNode = dnMap[iter->first];
-    printf("node %s has %d dependencies\n",depNode->target.c_str(),depNode->dependencies.size());
-    if(depNode->target != iter->first){
-      printf("problem\n");
-    }
-    function_node<bool,bool>*node  = iter->second;
-    //if it is a leaf node, connect it to the input node, else connect it to its parents
-    if(depNode->dependencies.size() == 0){
-      printf("making an edge between input and %s\n",depNode->target.c_str());
-      make_edge(input,*node);
-    }
-    for(int i = 0; i < depNode->dependencies.size(); i++){
-      printf("making an edge between %s and %s\n",  depNode->dependencies[i]->target.c_str(),(*depNode).target.c_str());
-
-      function_node<bool,bool>* parent = functionNodes[ depNode->dependencies[i]->target ];
-      make_edge(*parent,*node);
-    } 
-    
-
-  }
-
-  input.try_put(false);
-
-  g.wait_for_all();
-	
-}
-*/
+static tbb::mutex mut;
 
 //todo: put a lock on dirtyFiles
 //
 bool checkIfParentsHaveChanged( vector<DependencyNode*> dependencies,  map<string,bool> dirtyFiles ){
   bool unchanged = true;
+  tbb::mutex::scoped_lock lock;
+  lock.acquire(mut);
   for(int i = 0; i < dependencies.size(); i++){
     string parentFile = dependencies[i]->target;
     bool parentUnChanged = !dirtyFiles[parentFile];
     unchanged = unchanged && parentUnChanged;
   }
+  lock.release();
   return !unchanged;
 }
 
@@ -86,6 +36,7 @@ void buildInParallel( map<string,bool> dirtyFiles, StringToDepNodeMap dnMap){
 
   broadcast_node<continue_msg> input(g);
   map<string,continue_node<continue_msg>* > continueNodes; 
+  
   for (map<string,DependencyNode*>::iterator it = dnMap.begin(); it != dnMap.end(); it++){
     string name = it -> first;
     DependencyNode* node = dnMap[name];
@@ -95,12 +46,13 @@ void buildInParallel( map<string,bool> dirtyFiles, StringToDepNodeMap dnMap){
 	bool parentsChanged = checkIfParentsHaveChanged(node->dependencies,dirtyFiles);
 	bool needToBuild = fileHasChangedOnDisk || parentsChanged;
 	if(needToBuild){
-	printf("parentChanged = %d, fileChangedOnDisk %d %d building %s with %s ",parentsChanged,fileHasChangedOnDisk, needToBuild,node -> target.c_str(), node->compile_cmd.c_str());
-
 	  node->doBuild();
 	}
-	//todo: update dirty functions (w/ a lock)
-	//dirtyFiles[node->target] = needToBuild;
+
+	tbb::mutex::scoped_lock lock;
+	lock.acquire(mut);
+	dirtyFiles[name] = needToBuild;
+	lock.release();
 
       });
     continueNodes[node->target]= f;
@@ -109,15 +61,12 @@ void buildInParallel( map<string,bool> dirtyFiles, StringToDepNodeMap dnMap){
   map<string,continue_node<continue_msg>* >::iterator iter;
   for(iter = continueNodes.begin(); iter != continueNodes.end(); iter++){
     DependencyNode* depNode = dnMap[iter->first];
-    // printf("node %s has %d dependencies\n",depNode->target.c_str(),depNode->dependencies.size());
     continue_node<continue_msg>*node  = iter->second;
     //if it is a leaf node, connect it to the input node, else connect it to its parents
     if(depNode->dependencies.size() == 0){
-      // printf("making an edge between input and %s\n",depNode->target.c_str());
       make_edge(input,*node);
     }
     for(int i = 0; i < depNode->dependencies.size(); i++){
-      //printf("making an edge between %s and %s\n",  depNode->dependencies[i]->target.c_str(),(*depNode).target.c_str());
 
       continue_node<continue_msg>* parent = continueNodes[ depNode->dependencies[i]->target ];
       make_edge(*parent,*node);
@@ -134,28 +83,21 @@ void buildInParallel( map<string,bool> dirtyFiles, StringToDepNodeMap dnMap){
 
 int main() {
 
-
   //First, parse the Remodel file 
-  string fn = "RemodelFile"; //todo: have this point to a remodel file
+  string fn = "RemodelFile";
   StringToDepNodeMap dnMap;
   processRemodelFile(fn, dnMap);
   vector<string> files = getKeys(dnMap);
 
-    printDependencies(dnMap); //use this for debugging
+  //printDependencies(dnMap); //use this for debugging
 
   //Then find out the status of all files in the dependencies (i.e. whether they have changed on disk). 
-  //here, the value of the map is true if the file *has not* changed on disk
+  //here, the value of the map is true if the file has changed on disk
   map<string,bool> FileStatus;
   getFileStatuses(files,FileStatus); 
 
+  //todo: make list of things that you care about (by traversing up along dependencies).
   buildInParallel(FileStatus,dnMap);
-
-  //map<string,bool>::iterator iter;
-  //for(iter = FileStatus.begin(); iter != FileStatus.end(); iter++){
-  //  printf("file %s has status %d\n",iter -> first.c_str() ,  (char) (iter -> second));
-  // }
- 
-  //now, build the dependency tree from the bottom up. execute as much as you can asynchronously in parallel
 
   return 0;
 }
