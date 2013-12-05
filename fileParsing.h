@@ -16,7 +16,9 @@ class DependencyNode{
     bool nonTrivialBuildCommand = compile_cmd != "";
     if(nonTrivialBuildCommand){
       printf("executing: %s\n",compile_cmd.c_str());
-      std::system(compile_cmd.c_str());
+      int returnval = std::system(compile_cmd.c_str());
+      //if(returnval != 0)	
+      //todo: add error handling here
     }
   }
   
