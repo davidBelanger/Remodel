@@ -76,9 +76,11 @@ bool fileExists(string fn){
 
 
 //This returns a map from string -> bool where FileStatus[file]  = true if file *has* changed on disk.
-
+void debug(map<string,bool>& FileStatus){
+  FileStatus["yx"] = true;
+}
 void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
-    vector<string>::const_iterator cii;
+    vector<string>::iterator cii;
   //check if the md5 values are stored on disk already. if not, you assume that everything needs to be built from scratch
   string md5file = "./remodel/.md5-map";
   bool md5fileExists = fileExists(md5file);
@@ -103,8 +105,7 @@ void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
 	const char* file = (*cii).c_str();
 	const char*  md5 = computeMD5(file);
 	string currentMd5s(md5);
-	
-	
+		
 	if(mapContains(md5values,fn)){
 	  string prevMd5s = md5values[fn];
 	  is_up_to_date = (currentMd5s == prevMd5s);
@@ -119,7 +120,7 @@ void getFileStatuses(vector<string> files,map<string,bool>& FileStatus){
 	
 	md5fileNew << *cii << " " <<  currentMd5s <<endl;
       }
-      FileStatus[*cii] =  !is_up_to_date;
+      FileStatus[fn] =  !is_up_to_date;
     }
   char cmd[512];
   sprintf(cmd,"mv %s %s",temp_md5file.c_str(),md5file.c_str()); 

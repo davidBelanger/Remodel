@@ -9,3 +9,6 @@
 using namespace std;
 
 void getFileStatuses(vector<string> files, map<string,bool>& FileStatus);
+void debug(map<string,bool>& FileStatus);
+
+

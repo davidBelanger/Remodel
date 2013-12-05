@@ -5,8 +5,8 @@ DEPS = fileParsing.h fileStatus.h
 #%.o: %.c $(DEPS)
 #	$(CC) -c -o $@ $< $(CFLAGS)
 
-test1: test.cpp fileParsing.cpp fileStatus.cpp
-	$(CC)  -g -o test1 test.cpp fileParsing.cpp fileStatus.cpp $(CFLAGS)
+test1: test.cpp fileParsing.cpp fileStatus.cpp parallelBuild.cpp
+	$(CC)  -g -o test1 test.cpp fileParsing.cpp fileStatus.cpp parallelBuild.cpp $(CFLAGS)
 
 #test1: test.o fileParsing.o fileStatus.o
 #	$(CC)  -g -o test1 test.o fileParsing.o fileStatus.o $(CFLAGS)
