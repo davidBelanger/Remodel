@@ -20,15 +20,12 @@ bool checkIfParentsHaveChanged( vector<DependencyNode*> dependencies,  map<strin
 }
 
 
-void buildInParallel(StringToDepNodeMap dnMap,map<string,bool>& FileStatus){
-  //todo: make list of things that you care about (by traversing up along dependencies).
-  //todo: add logic where it only finds the relevant parts of the tree to traverse (this can just be a flat list of names)
-  //todo: add logic where if everything is fresh, then you don't build at all.
+void buildInParallel(vector<string> filesToBuild,StringToDepNodeMap dnMap,map<string,bool>& FileStatus){
   graph g;
   broadcast_node<continue_msg> input(g);
   map<string,continue_node<continue_msg>* > continueNodes; 
-  for (map<string,DependencyNode*>::iterator it = dnMap.begin(); it != dnMap.end(); it++){
-    string name = it -> first;
+  for(int ii = 0; ii < filesToBuild.size(); ii++){
+    string name = filesToBuild[ii];
     DependencyNode* node = dnMap[name];
     bool fileHasChangedOnDisk = FileStatus[name];
     continue_node<continue_msg> * f = new continue_node<continue_msg>( g,  [&FileStatus,node,name,fileHasChangedOnDisk]( const continue_msg& ){ 

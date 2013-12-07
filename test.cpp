@@ -7,8 +7,19 @@
 //#include "fileParsing.h"
 #include "parallelBuild.h"
 
-int main() {
+int main(int argc, char** argv) {
 
+  if(argc > 1){
+    printf("usage: remake <target>\n(if <target> is empty, it will make the target specified by DEFAULT <- <target> in the RemodelFile file\n");
+    exit(1);
+  }
+
+  string target = "DEFAULT";
+  if(argc == 1){
+    target = argv[0];
+  }
+  
+  
   //First, parse the Remodel file 
   string fn = "RemodelFile";
   StringToDepNodeMap dnMap;
@@ -23,9 +34,18 @@ int main() {
   
    getFileStatuses(files,FileStatus); 
 
-   //now run
-   buildInParallel(dnMap,FileStatus);
+   //traverse up from the target in the dependency tree and find out what intermediate targets we care about. Only build these. 
+   vector<string> filesToBuild;
+   getRelevantFiles(dnMap,target,filesToBuild);
+ 
+   buildInParallel(filesToBuild,dnMap,FileStatus);
 
+  map<string,DependencyNode*>::iterator iter;
+  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
+    free(iter->second);
+  }
+
+   
   return 0;
 }
 
