@@ -13,5 +13,5 @@
 
 using namespace std;
 
-void buildInParallel(vector<string> filesToBuild,StringToDepNodeMap dnMap,map<string,bool>& FileStatus);
+void buildInParallel(vector<string> filesToBuild,StringToDepNodeMap dnMap,map<string,bool> FileStatus);
 

@@ -20,7 +20,7 @@ bool checkIfParentsHaveChanged( vector<DependencyNode*> dependencies,  map<strin
 }
 
 
-void buildInParallel(vector<string> filesToBuild,StringToDepNodeMap dnMap,map<string,bool>& FileStatus){
+void buildInParallel(vector<string> filesToBuild,StringToDepNodeMap dnMap,map<string,bool> FileStatus){
   graph g;
   broadcast_node<continue_msg> input(g);
   map<string,continue_node<continue_msg>* > continueNodes; 

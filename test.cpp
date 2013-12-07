@@ -9,14 +9,14 @@
 
 int main(int argc, char** argv) {
 
-  if(argc > 1){
+  if(argc > 2){
     printf("usage: remake <target>\n(if <target> is empty, it will make the target specified by DEFAULT <- <target> in the RemodelFile file\n");
     exit(1);
   }
 
   string target = "DEFAULT";
-  if(argc == 1){
-    target = argv[0];
+  if(argc == 2){
+    target = argv[1];
   }
   
   
@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
 
    //traverse up from the target in the dependency tree and find out what intermediate targets we care about. Only build these. 
    vector<string> filesToBuild;
-   getRelevantFiles(dnMap,target,filesToBuild);
+   getRelevantFiles(dnMap,target,&filesToBuild);
+
  
    buildInParallel(filesToBuild,dnMap,FileStatus);
 

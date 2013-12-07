@@ -33,4 +33,4 @@ void printDependencies(StringToDepNodeMap dnMap);
 
 vector<string> getKeys(StringToDepNodeMap dnMap);
 
-void getRelevantFiles(StringToDepNodeMap dnMap,string target, vector<string> relevantFiles);
+void getRelevantFiles(StringToDepNodeMap dnMap,string target, vector<string> *  relevantFiles);
