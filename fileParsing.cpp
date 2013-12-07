@@ -127,7 +127,6 @@ vector<string> getKeys(StringToDepNodeMap dnMap){
 
 
 void getRelevantFiles(StringToDepNodeMap dnMap,string target,vector<string> *  relevantFiles){
-  //todo: throw an error if target isn't in the map
   relevantFiles->push_back(target);
   DependencyNode* node = dnMap[target];
   for(int i = 0; i < node->dependencies.size(); i++){

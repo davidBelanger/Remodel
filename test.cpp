@@ -34,6 +34,11 @@ int main(int argc, char** argv) {
   
    getFileStatuses(files,FileStatus); 
 
+   map<string,bool>::iterator iter = FileStatus.find(target);
+   if( iter == FileStatus.end() ){
+     printf("error: can't find information for building %s in RemodelFile\n",target.c_str();
+   }
+
    //traverse up from the target in the dependency tree and find out what intermediate targets we care about. Only build these. 
    vector<string> filesToBuild;
    getRelevantFiles(dnMap,target,&filesToBuild);
