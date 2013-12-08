@@ -6,13 +6,22 @@ Motivation
 There is a problem with building code using make:
       It checks whether files are up-to-date based on their timestamps, which is not always reliable. Timestamps can also be insufficient when building dependencies in parallel. 
 
+**Note** This tool was developed for a problem set for Prof. Emery Berger's CS630 class. The idea for the tool, the syntax for the RemodelFile, and the example below are due to him. 
 
 Usage
 ---------------------
-
+1) Build  Remodel from source (Makefile provided). See notes below on building it. 
+2) Make a file called 'RemodelFile' that encodes the dependency structure of your project. See below for syntax.
+3) Make a directory called 'remodel' in the same directory where RemodelFile is. 
+4) Build your project!
 
 How It Works
 ---------------------
+You specify the dependency structure of your project using a RemodelFile, described below. This induces a DAG between the dependencies. 
+The code considers all of the files in these dependencies and computes their MD5sum. It compares this hash value to a value cached from the last time Remodel was run.
+(md5sums are cached in ./remodel/.md5-map). If the sum has changed, then the file is marked as changed. It and all of its children will need to be rebuilt.
+
+We use the Intel Thread Building Blocks Flow Graph library for executing the build commands for the project in parallel. This instantiates a the DAG induced by the RemodelFile, where each node corresponds to a build command. Nodes' build commands are executed only when their parents nodes finish. 
 
 
 RemodelFile Syntax
@@ -35,7 +44,6 @@ foo.o <- foo.cpp : "g++ -c foo.cpp -o foo.o"
 bar.o <- bar.cpp: "g++ -c bar.cpp -o bar.o"
 
 
-You should store the dependencies on disk in a special directory called .remodel/, so that remodel will not re-execute any commands unless a dependency has been violated. 
 
 Building Remodel From Source
 ----------------------------
