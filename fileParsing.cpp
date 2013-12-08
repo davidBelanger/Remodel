@@ -111,9 +111,7 @@ void printDependencies(StringToDepNodeMap dnMap){
       printf(" %s", dn.dependencies[j]->target.c_str());
     }
     printf("\n\n");
-
   }
-
 }
 
 vector<string> getKeys(StringToDepNodeMap dnMap){
@@ -125,7 +123,6 @@ vector<string> getKeys(StringToDepNodeMap dnMap){
   return tr;
 }
 
-
 void getRelevantFiles(StringToDepNodeMap dnMap,string target,vector<string> *  relevantFiles){
   relevantFiles->push_back(target);
   DependencyNode* node = dnMap[target];
@@ -134,5 +131,11 @@ void getRelevantFiles(StringToDepNodeMap dnMap,string target,vector<string> *  r
   }
 }
 
+void cleanupNodeMap(StringToDepNodeMap dnMap){
+  map<string,DependencyNode*>::iterator iter2;
+  for(iter2 = dnMap.begin(); iter2 != dnMap.end(); iter2++){
+    free(iter2->second);
+  }
 
+}
 

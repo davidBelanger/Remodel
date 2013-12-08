@@ -24,7 +24,10 @@ class DependencyNode{
   
 };
 
+
 typedef map<string,DependencyNode*>  StringToDepNodeMap;
+
+void cleanupNodeMap(StringToDepNodeMap dnMap);
 
 void processRemodelFile(std::string filename, StringToDepNodeMap& m);
 

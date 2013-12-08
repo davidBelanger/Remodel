@@ -7,6 +7,9 @@
 //#include "fileParsing.h"
 #include "parallelBuild.h"
 
+
+
+
 int main(int argc, char** argv) {
 
   if(argc > 2){
@@ -36,7 +39,9 @@ int main(int argc, char** argv) {
 
    map<string,bool>::iterator iter = FileStatus.find(target);
    if( iter == FileStatus.end() ){
-     printf("error: can't find information for building %s in RemodelFile\n",target.c_str();
+     printf("error: can't find information for building %s in RemodelFile\n",target.c_str());
+     cleanupNodeMap(dnMap);
+     exit(1);
    }
 
    //traverse up from the target in the dependency tree and find out what intermediate targets we care about. Only build these. 
@@ -46,10 +51,7 @@ int main(int argc, char** argv) {
  
    buildInParallel(filesToBuild,dnMap,FileStatus);
 
-  map<string,DependencyNode*>::iterator iter;
-  for(iter = dnMap.begin(); iter != dnMap.end(); iter++){
-    free(iter->second);
-  }
+   cleanupNodeMap(dnMap);
 
    
   return 0;
