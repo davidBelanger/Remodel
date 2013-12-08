@@ -21,8 +21,10 @@ Setup
 
 Usage
 ---------------------
-Syntax: ./BuildRemodel
+Syntax: ./BuildRemodel <target>
 
+The second argument is optional. If you don't specify it, it builds the target DEFAULT target described below. This is analogous to how unix make builds the 
+first target listed in the Makefile if no target is specified. 
 
 How It Works
 ---------------------
@@ -66,6 +68,6 @@ Building Remodel From Source
 ----------------------------
 There is one remaining situation where you should use Unix make: when you are building Remodel!
 
-Build using 'make.' The Makefile is configured to for macosx (it uses clang), but can be changed for other compilers easily. 
+Build using 'make.' The Makefile is configured for macosx (it uses clang), but can be changed for other compilers easily. 
 You will need to install the Intel Thread Building Blocks and OpenSSL libraries. These can be installed, for example, using macports. 
 
