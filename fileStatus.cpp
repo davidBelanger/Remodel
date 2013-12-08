@@ -34,7 +34,7 @@ vector<string> parseSpaceDeliminatedString(string text){
         const char *begin = str;
 
         while(*str != delim && *str)
-            str++;
+           str++;
 
         fields.push_back(string(begin, str));
     } while (0 != *str++);

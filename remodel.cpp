@@ -21,6 +21,11 @@ int main(int argc, char** argv) {
   if(argc == 2){
     target = argv[1];
   }
+
+  if(target == "clean"){
+    system("rm -f ./remodel/.md5-map");
+    exit(0);
+  }
   
   
   //First, parse the Remodel file 
