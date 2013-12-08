@@ -5,7 +5,7 @@ Motivation
 
 There is a problem with building code using make:
 
-      It checks whether files are up-to-date based on their timestamps, which is not always reliable. Timestamps can also be insufficient when building dependencies in parallel. 
+It checks whether files are up-to-date based on their timestamps, which is not always reliable. Timestamps can also be insufficient when building dependencies in parallel. 
 
 **Note** This tool was developed for a problem set for Prof. Emery Berger's CS630 class. The idea for the tool, the syntax for the RemodelFile, and the example below are due to him. 
 
