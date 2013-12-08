@@ -32,7 +32,9 @@ RemodelFile Syntax
 ---------------------
 
 
-Remodel uses a different grammar than make. Dependencies can appear in any order. If you execute remodel with no arguments, it should start with the pseudo-target DEFAULT. Otherwise, the root is the argument to remodel, as in remodel foo.o. 
+Remodel uses a different grammar than unix make:
+
+ Dependencies can appear in any order. If you execute remodel with no arguments, it should start with the pseudo-target DEFAULT. Otherwise, the root is the argument to remodel, as in remodel foo.o. 
 
 
 program ::= production*
