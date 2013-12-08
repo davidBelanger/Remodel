@@ -9,15 +9,20 @@ It checks whether files are up-to-date based on their timestamps, which is not a
 
 **Note** This tool was developed for a problem set for Prof. Emery Berger's CS630 class. The idea for the tool, the syntax for the RemodelFile, and the example below are due to him. 
 
-Usage
+Setup
 ---------------------
-1) Build  Remodel from source (Makefile provided). See notes below on building it. 
+1) Build  Remodel from source (Makefile provided). See notes below on building it.This produces a binary called 'BuildRemodel.'
 
 2) Make a file called 'RemodelFile' that encodes the dependency structure of your project. See below for syntax.
 
 3) Make a directory called 'remodel' in the same directory where RemodelFile is. 
 
 4) Build your project!
+
+Usage
+---------------------
+Syntax: ./BuildRemodel
+
 
 How It Works
 ---------------------
