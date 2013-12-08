@@ -49,7 +49,13 @@ int main(int argc, char** argv) {
    getRelevantFiles(dnMap,target,&filesToBuild);
 
  
-   buildInParallel(filesToBuild,dnMap,FileStatus);
+   try{
+     buildInParallel(filesToBuild,dnMap,FileStatus);
+   }catch(...){
+     cout << "Aborting. Build Failed" << endl;
+     cleanupNodeMap(dnMap);
+     return(1);
+   }
 
    cleanupNodeMap(dnMap);
 

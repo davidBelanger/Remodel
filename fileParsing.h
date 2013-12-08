@@ -1,8 +1,13 @@
+#include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
 #include <cstdlib>
+#include<stdexcept>
+
 using namespace std;
+
 
 class DependencyNode{
  public:
@@ -12,16 +17,16 @@ class DependencyNode{
   vector<DependencyNode*> dependencies;
   int operator()(int v) { return v*v; }
   int hello(int v) { return v*v; }
-  void doBuild(void){
+  void doBuild(){
     bool nonTrivialBuildCommand = compile_cmd != "";
     if(nonTrivialBuildCommand){
       printf("executing: %s\n",compile_cmd.c_str());
       int returnval = std::system(compile_cmd.c_str());
-      //if(returnval != 0)	
-      //todo: add error handling here
+      if(returnval != 0){
+	throw compile_cmd;
+      }	
     }
-  }
-  
+  }  
 };
 
 
