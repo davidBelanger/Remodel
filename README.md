@@ -11,7 +11,9 @@ It checks whether files are up-to-date based on their timestamps, which is not a
 
 Setup
 ---------------------
-1) Build  Remodel from source (Makefile provided). See notes below on building it.This produces a binary called 'BuildRemodel.'
+1a) Build  Remodel from source (Makefile provided). See notes below on building it.This produces a binary called 'BuildRemodel.'
+
+1b) Alternatively, download the pre-built binary provided with a release on github. 
 
 2) Make a file called 'RemodelFile' that encodes the dependency structure of your project. See below for syntax.
 
@@ -21,10 +23,18 @@ Setup
 
 Usage
 ---------------------
-Syntax: ./BuildRemodel (target)
+Syntax: 
+  ./BuildRemodel (target)
 
 The second argument is optional. If you don't specify it, it builds the target DEFAULT target described below. This is analogous to how unix make builds the 
 first target listed in the Makefile if no target is specified. 
+
+Special use case:
+
+  ./BuildRemodel clean
+
+This will delete the cached information for files' status, which will force BuildRemodel to build everything from scratch next time you run it. Note that this doesn't remove any intermediate files that you may want to remove (like you would specify in the 'clean' target in a Makefile). 
+
 
 How It Works
 ---------------------
@@ -71,3 +81,10 @@ There is one remaining situation where you should use Unix make: when you are bu
 Build using 'make.' The Makefile is configured for macosx (it uses clang), but can be changed for other compilers easily. 
 You will need to install the Intel Thread Building Blocks and OpenSSL libraries. These can be installed, for example, using macports. 
 
+Testing Remodel
+----------------------------
+
+If you want to force BuildRemodel to build everything from scratch, use 'BuildRemodel clean.'
+BuildRemodel will catch any exceptions from system calls for the build process that fail. 
+
+We have provided an example for testing BuildRemodel in the 'example' subdirectory. To test, cd to this directory and run ../BuildRemodel. 
