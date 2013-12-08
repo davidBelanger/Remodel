@@ -21,7 +21,7 @@ Setup
 
 Usage
 ---------------------
-Syntax: ./BuildRemodel <target>
+Syntax: ./BuildRemodel (target)
 
 The second argument is optional. If you don't specify it, it builds the target DEFAULT target described below. This is analogous to how unix make builds the 
 first target listed in the Makefile if no target is specified. 
