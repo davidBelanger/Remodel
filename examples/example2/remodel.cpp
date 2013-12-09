@@ -11,6 +11,7 @@
 
 
 int main(int argc, char** argv) {
+  cout << "hello " << endl;
   if(argc > 2){
     printf("usage: remake <target>\n(if <target> is empty, it will make the target specified by DEFAULT <- <target> in the RemodelFile file\n");
     exit(1);

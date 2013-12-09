@@ -1,0 +1,5 @@
+DEFAULT <-  BuildRemodel
+parallelBuild.o <- parallelBuild.cpp parallelBuild.h: "clang++ -Wall -g -c -o parallelBuild.o parallelBuild.cpp -std=c++11 -stdlib=libc++  -I/opt/local/include/ -L/opt/local/lib/  -lssl -lcrypto -ltbb"
+fileParsing.o <- fileParsing.cpp fileParsing.h: "clang++ -Wall -g -c -o fileParsing.o fileParsing.cpp -std=c++11 -stdlib=libc++  -I/opt/local/include/ -L/opt/local/lib/  -lssl -lcrypto -ltbb"
+fileStatus.o <- fileStatus.cpp fileStatus.h: "clang++ -Wall -g -c -o fileStatus.o fileStatus.cpp -std=c++11 -stdlib=libc++  -I/opt/local/include/ -L/opt/local/lib/  -lssl -lcrypto -ltbb"
+BuildRemodel <-  fileParsing.o fileStatus.o parallelBuild.o: "clang++ -Wall -g -o BuildRemodel parallelBuild.o fileParsing.o fileStatus.o -std=c++11 -stdlib=libc++  -I/opt/local/include/ -L/opt/local/lib/  -lssl -lcrypto -ltbb"

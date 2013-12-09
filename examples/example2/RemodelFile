@@ -1,0 +1,2 @@
+DEFAULT <-  BuildRemodel
+BuildRemodel <-  remodel.cpp fileParsing.cpp fileStatus.cpp parallelBuild.cpp fileParsing.h fileStatus.h parallelBuild.h: "clang++ -Wall -g -o BuildRemodel remodel.cpp fileParsing.cpp fileStatus.cpp parallelBuild.cpp -std=c++11 -stdlib=libc++  -I/opt/local/include/ -L/opt/local/lib/  -lssl -lcrypto -ltbb"
