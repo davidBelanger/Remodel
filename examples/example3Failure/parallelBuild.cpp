@@ -28,7 +28,6 @@ void buildInParallel(vector<string> filesToBuild,StringToDepNodeMap dnMap,map<st
     string name = filesToBuild[ii];
     DependencyNode* node = dnMap[name];
     bool fileHasChangedOnDisk = FileStatus[name];
-
     continue_node<continue_msg> * f = new continue_node<continue_msg>( g,  [&FileStatus,node,name,fileHasChangedOnDisk]( const continue_msg& ){ 
 	bool parentsChanged = checkIfParentsHaveChanged(node->dependencies,FileStatus);
 	bool needToBuild = fileHasChangedOnDisk || parentsChanged;
