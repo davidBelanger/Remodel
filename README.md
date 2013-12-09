@@ -101,3 +101,18 @@ example3: This is the same as example3, but the RemodelFile is more sophisticate
 
 example3Failure: This is the same as example3, but it has a bug in the specification of the dependency DAG (BuildRemodel doesn't depend on fileParsing.o, but it should). If you run ../../BuildRemodel enough times, it will crash. Make sure to run ../../BuildRemodel clean between trials so that it builds from scratch. 
 
+Code Tour
+----------------------------
+
+There are 4 main sub-tasks and 4 files:
+
+**remodel.cpp** This just contains the main function, which parses the RemodelFile into an internal represenation, finds out whether files on disk are up to date (by checking their md5sum), and then executes the build commands (in parallel, when it can). 
+
+**fileParsing.cpp** This reads in RemodelFiles, parses them, and creates a DAG of DependencyNodes. There is one DependencyNode for every target in the RemodelFile. This has pointers to DependencyNodes for its parents and implements a method for doing a system call for the target's compile command.  
+
+**fileStatus.cpp** This has code for returning a map from filenames to whether they are changed on disk. It loads in the previously cached md5sums from ./remodel/md5-map and updates this file with the current md5sum for files. It says a file has changed if its md5sum has changed. We compute the MD5sum using the implementation in the openssl library. 
+
+**parallelBuild.cpp** The RemodelFile encodes a DAG of dependencies, and the build command for a DependencyNode can be executed as soon as its parents have built. This is captured easily using the Intel Thread Building Blocks Flow Graph library. We create a DAG of continute_nodes, one for each DepndencyNode, where each of them has a callback that executes the relevant build command. The Flow Graph library is very user-friendly. You basically just declare the graph structure among the continue_node, tell it to start computing, and wait for all the lambdas to be called. The only tricky part is that the lambdas need to mutate a global structure for whether an intermediate file needs to be built. We wrap all accesses to this datastructure (FileStatus) using Thread Building Block scoped locks. 
+
+
+
