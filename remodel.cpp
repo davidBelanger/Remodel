@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
      cleanupNodeMap(dnMap);
      return(1);
    }
+   getFileStatuses(files,FileStatus); //do this so that it writes out new md5sums for the newly-built files
 
    cleanupNodeMap(dnMap);
 
