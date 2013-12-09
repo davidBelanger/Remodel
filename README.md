@@ -87,4 +87,17 @@ Testing Remodel
 If you want to force BuildRemodel to build everything from scratch, use 'BuildRemodel clean.'
 BuildRemodel will catch any exceptions from system calls for the build process that fail. 
 
-We have provided an example for testing BuildRemodel in the 'example' subdirectory. To test, cd to this directory and run ../BuildRemodel. 
+We have provided examples for testing BuildRemodel in the 'example' subdirectory. There are 4 subdirectories in this, for 4 different tests. To run each, cd to the directory and execute '../../BuildRemodel'
+
+*The Tests*
+
+example1: Simple hello world with the same RemodelFile as the example above.
+
+example1Failure: Same as example1, but with a bug in the specification of a build command in the RemodelFile. This shows that it properly catches build errors. 
+
+example2: This has a copy of the source code for Remodel, and uses ../../Remodel to build itself. This one has a very simple RemodelFile with just one line.
+
+example3: This is the same as example3, but the RemodelFile is more sophisticated, since it generates intermediate .o files. 
+
+example3Failure: This is the same as example3, but it has a bug in the specification of the dependency DAG (BuildRemodel doesn't depend on fileParsing.o, but it should). If you run ../../BuildRemodel enough times, it will crash. Make sure to run ../../BuildRemodel clean between trials so that it builds from scratch. 
+
